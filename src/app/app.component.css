@@ -1,0 +1,5 @@
+@import "~bootstrap/dist/css/bootstrap.css";
+.header {
+  background-color: yellow;
+  border: 2px solid black;
+}
