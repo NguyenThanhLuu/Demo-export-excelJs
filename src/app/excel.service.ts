@@ -8,7 +8,7 @@ export class ExcelService {
   constructor() {}
 
   generateExcel() {
-    //Excel Title, Header, Data
+    // Excel Title, Header, Data
     const title = "12A6 GRADE TRANSCRIPT";
     const header = ["", "", "", "MATH", "LITERATURE", "ENGLISH", ""];
     const data = [
@@ -25,11 +25,54 @@ export class ExcelService {
       [11, "NGUYEN QUANG HAI	", "Male	", 8, 8, 7, 7.7],
       [12, "PHAN VAN DUC", "Male", 8, 7, 7, 7.3],
     ];
+    let valueMergeHeader = [
+      "No",
+      "FULL NAME",
+      "GENDER",
+      "SUBJECT",
+      "AVERAGE SCORE",
+    ];
+    let positionCell = ["A2", "B2", "C2", "D2", "G2"];
+
     let lengthData = data.length + 3;
     console.log(lengthData);
 
+    // Function set title and value
+    function setTitle(position: string[], valueCell: string[]) {
+      for (let i = 0; i < position.length; i++) {
+        worksheet.getCell(position[i]).value = valueCell[i];
+      }
+    }
+    // Function fill
+    function fillCell(nameCell: string, colorFill: string) {
+      worksheet.getCell(nameCell).fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: colorFill },
+      };
+    }
+    // Function border
+    function borderCell(nameCell: string) {
+      worksheet.getCell(nameCell).border = {
+        bottom: { style: "thin" },
+        top: { style: "thin" },
+        left: { style: "thin" },
+        right: { style: "thin" },
+      };
+    }
+    // Function align text in a cell (center)
+    function alignColumn(numberColumn: number) {
+      worksheet.getColumn(numberColumn).alignment = {
+        vertical: "middle",
+        horizontal: "center",
+      };
+    }
+    // Function width column
+    function widthColumn(numberColumn: number, valueSet: number) {
+      worksheet.getColumn(numberColumn).width = valueSet;
+    }
     //Create workbook and worksheet
-    let workbook = new Workbook(); // ws big container ws
+    let workbook = new Workbook();
     let worksheet = workbook.addWorksheet("12A6 grade transcript");
 
     // Add title and excuse set font, background cell and border
@@ -67,18 +110,11 @@ export class ExcelService {
     worksheet.mergeCells("C2:C3");
     worksheet.mergeCells("D2:F2");
     worksheet.mergeCells("G2:G3");
-    // Set name of each cell after merge
-    worksheet.getCell("A2").value = "No";
-    worksheet.getCell("B2").value = "FULL NAME";
-    worksheet.getCell("C2").value = "GENDER";
-    worksheet.getCell("D2").value = "SUBJECT";
-    worksheet.getCell("G2").value = "AVERAGE SCORE";
-    worksheet.getCell("D2").fill = {
-      type: "pattern",
-      pattern: "solid",
-      fgColor: { argb: "FFFFFF00" },
-    };
+
+    setTitle(positionCell, valueMergeHeader);
+
     // Set fill and border for each cell of header
+    fillCell("D2", "FFFFFF00");
     headerRow.eachCell((cell, number) => {
       cell.fill = {
         type: "pattern",
@@ -93,157 +129,40 @@ export class ExcelService {
       };
     });
     // Add each row corresponding to each value of data array
-    data.forEach((d) => {
-      let row = worksheet.addRow(d);
-      let qty1 = row.getCell(1);
-      let qty2 = row.getCell(2);
-      let qty3 = row.getCell(3);
-      let qty4 = row.getCell(4);
-      let qty5 = row.getCell(5);
-      let qty6 = row.getCell(6);
-      let qty7 = row.getCell(7);
-      qty1.border = {
-        left: { style: "thin" },
-        right: { style: "thin" },
-      };
-      qty2.border = {
-        left: { style: "thin" },
-        right: { style: "thin" },
-      };
-      qty3.border = {
-        left: { style: "thin" },
-        right: { style: "thin" },
-      };
-      qty4.border = {
-        left: { style: "thin" },
-        right: { style: "thin" },
-      };
-      qty5.border = {
-        left: { style: "thin" },
-        right: { style: "thin" },
-      };
-      qty6.border = {
-        left: { style: "thin" },
-        right: { style: "thin" },
-      };
-      qty7.border = {
-        left: { style: "thin" },
-        right: { style: "thin" },
-      };
-      let color = "FFFFFFFF";
-      if (+qty7.value >= 8) {
-        color = "FF99FF99";
+    data.forEach((value) => {
+      let row = worksheet.addRow(value);
+      for (let i = 1; i <= 7; i++) {
+        row.getCell(i).border = {
+          left: { style: "thin" },
+          right: { style: "thin" },
+
+          bottom: { style: "thin" },
+          top: { style: "thin" },
+        };
+        if (i == 7 && +row.getCell(i).value >= 8) {
+          row.getCell(i).fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "b3b3b3" },
+          };
+          console.log(1);
+        }
       }
-      qty1.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: color },
-      };
-      qty2.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: color },
-      };
-      qty3.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: color },
-      };
-      qty4.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: color },
-      };
-      qty5.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: color },
-      };
-      qty6.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: color },
-      };
-      qty7.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: color },
-      };
     });
-    worksheet.getColumn(1).alignment = {
-      vertical: "middle",
-      horizontal: "center",
-    };
+    // Alignment text in cell
+    for (let i = 1; i <= 7; i++) {
+      alignColumn(i);
+    }
+    // Modify with each cell
+    widthColumn(1, 5);
+    widthColumn(2, 30);
+    widthColumn(3, 10);
+    widthColumn(4, 10);
+    widthColumn(5, 15);
+    widthColumn(6, 10);
+    widthColumn(7, 30);
 
-    worksheet.getColumn(2).alignment = {
-      vertical: "middle",
-      horizontal: "center",
-    };
-    worksheet.getColumn(4).alignment = {
-      vertical: "middle",
-      horizontal: "center",
-    };
-    worksheet.getColumn(3).alignment = {
-      vertical: "middle",
-      horizontal: "center",
-    };
-    worksheet.getColumn(5).alignment = {
-      vertical: "middle",
-      horizontal: "center",
-    };
-    worksheet.getColumn(6).alignment = {
-      vertical: "middle",
-      horizontal: "center",
-    };
-    worksheet.getColumn(7).alignment = {
-      vertical: "middle",
-      horizontal: "center",
-    };
-    worksheet.getCell(`A:${lengthData}`).border = {
-      bottom: { style: "thin" },
-      left: { style: "thin" },
-      right: { style: "thin" },
-    };
-    worksheet.getCell(`B:${lengthData}`).border = {
-      bottom: { style: "thin" },
-      left: { style: "thin" },
-      right: { style: "thin" },
-    };
-    worksheet.getCell(`C:${lengthData}`).border = {
-      bottom: { style: "thin" },
-      left: { style: "thin" },
-      right: { style: "thin" },
-    };
-    worksheet.getCell(`D:${lengthData}`).border = {
-      bottom: { style: "thin" },
-      left: { style: "thin" },
-      right: { style: "thin" },
-    };
-    worksheet.getCell(`E:${lengthData}`).border = {
-      bottom: { style: "thin" },
-      left: { style: "thin" },
-      right: { style: "thin" },
-    };
-    worksheet.getCell(`F:${lengthData}`).border = {
-      bottom: { style: "thin" },
-      left: { style: "thin" },
-      right: { style: "thin" },
-    };
-    worksheet.getCell(`G:${lengthData}`).border = {
-      bottom: { style: "thin" },
-      left: { style: "thin" },
-      right: { style: "thin" },
-    };
-
-    worksheet.getColumn(1).width = 5;
-    worksheet.getColumn(2).width = 30;
-    worksheet.getColumn(3).width = 10;
-    worksheet.getColumn(4).width = 10;
-    worksheet.getColumn(5).width = 15;
-    worksheet.getColumn(6).width = 10;
-    worksheet.getColumn(7).width = 30;
-
-    //Generate Excel File with given name
+    // Generate Excel File with given name
     workbook.xlsx.writeBuffer().then((data) => {
       let blob = new Blob([data], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
