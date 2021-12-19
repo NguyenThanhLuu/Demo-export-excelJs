@@ -6,168 +6,272 @@ import * as fs from "file-saver";
 })
 export class ExcelService {
   constructor() {}
+  EXCEL_TYPE =
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
+  EXCEL_EXTENSION = ".xlsx";
 
-  generateExcel() {
-    // Excel Title, Header, Data
-    const title = "12A6 GRADE TRANSCRIPT";
-    const header = ["", "", "", "MATH", "LITERATURE", "ENGLISH", ""];
-    const data = [
-      [1, "PHAM NHU ANH", "Female", 9, 10, 10, 9.7],
-      [2, "PHAM THANH BINH", "	Male	", 8, 8, 9, 8.3],
-      [3, "TRAN QUOC BINH", "	Male", 8, 9, 8, 8.3],
-      [4, "LE THI HOAI AN	", "Female", 8, 8, 8, 8.0],
-      [5, "DANG QUOC AN	", "Male", 8, 9, 7, 8.0],
-      [6, "HOANG DUNG	", "Male", 8, 8, 7, 7.7],
-      [7, "LE XUAN TRUONG", "	Male", 8, 8, 8, 8.0],
-      [8, "BUI TIEN DUNG", "	Male", 8, 8, 6, 7.3],
-      [9, "DANG THI THUY HOA", "Female", 7, 9, 6, 7.3],
-      [10, "NGUYEN TIEN DUNG", "	Male", 10, 9, 9, 9.3],
-      [11, "NGUYEN QUANG HAI	", "Male	", 8, 8, 7, 7.7],
-      [12, "PHAN VAN DUC", "Male", 8, 7, 7, 7.3],
-    ];
-    let valueMergeHeader = [
-      "No",
-      "FULL NAME",
-      "GENDER",
-      "SUBJECT",
-      "AVERAGE SCORE",
-    ];
-    let positionCell = ["A2", "B2", "C2", "D2", "G2"];
-
-    let lengthData = data.length + 3;
-    console.log(lengthData);
-
-    // Function set title and value
-    function setTitle(position: string[], valueCell: string[]) {
-      for (let i = 0; i < position.length; i++) {
-        worksheet.getCell(position[i]).value = valueCell[i];
-      }
-    }
-    // Function fill
-    function fillCell(nameCell: string, colorFill: string) {
-      worksheet.getCell(nameCell).fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: colorFill },
-      };
-    }
-    // Function border
-    function borderCell(nameCell: string) {
-      worksheet.getCell(nameCell).border = {
-        bottom: { style: "thin" },
-        top: { style: "thin" },
-        left: { style: "thin" },
-        right: { style: "thin" },
-      };
-    }
-    // Function align text in a cell (center)
-    function alignColumn(numberColumn: number) {
-      worksheet.getColumn(numberColumn).alignment = {
-        vertical: "middle",
-        horizontal: "center",
-      };
-    }
-    // Function width column
-    function widthColumn(numberColumn: number, valueSet: number) {
-      worksheet.getColumn(numberColumn).width = valueSet;
-    }
-    //Create workbook and worksheet
-    let workbook = new Workbook();
-    let worksheet = workbook.addWorksheet("12A6 grade transcript");
-
-    // Add title and excuse set font, background cell and border
-    let titleRow = worksheet.addRow([title]);
-    // Set font for title
-    titleRow.font = {
-      name: "consolas",
-      family: 4,
-      size: 16,
-      bold: true,
-      color: { argb: "FFFFFF" },
-    };
-    // Set text posision in cell
-    titleRow.alignment = { vertical: "middle", horizontal: "center" };
-    titleRow.findCell(1).fill = {
+  STYLE_HEADER = {
+    border: true,
+    height: 35,
+    font: { size: 15, bold: true, color: { argb: "000000" } },
+    alignment: { horizontal: "center", vertical: "middle", wrapText: true },
+    fill: {
       type: "pattern",
       pattern: "solid",
-      fgColor: { argb: "6600ff" }, // Purple color
-    };
-    // Set border of cell
-    titleRow.findCell(1).border = {
-      top: { style: "thin" },
-      left: { style: "thin" },
-      bottom: { style: "thin" },
-      right: { style: "thin" },
-    };
-    // Merge cell for title
-    worksheet.mergeCells("A1:G1");
-    // Add Header Row
-    worksheet.addRow([]);
-    let headerRow = worksheet.addRow(header);
-    // Merge cell of header
-    worksheet.mergeCells("A2:A3");
-    worksheet.mergeCells("B2:B3");
-    worksheet.mergeCells("C2:C3");
-    worksheet.mergeCells("D2:F2");
-    worksheet.mergeCells("G2:G3");
+      fgColor: { argb: "d1d1d1" },
+    },
+  };
+  STYLE_DATA_WHITE = {
+    border: true,
+    height: 70,
+    font: { size: 15, bold: false, color: { argb: "ffffff" } },
+    alignment: { horizontal: "center", vertical: "middle" },
+    fill: {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "ff0000" },
+    },
+  };
 
-    setTitle(positionCell, valueMergeHeader);
+  STYLE_DATA_WARNING = {
+    border: true,
+    height: 70,
+    font: { size: 15, bold: false, color: { argb: "ffffff" } },
+    alignment: { horizontal: "center", vertical: "middle" },
+    fill: {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "ff0000" },
+    },
+  };
 
-    // Set fill and border for each cell of header
-    fillCell("D2", "FFFFFF00");
-    headerRow.eachCell((cell, number) => {
-      cell.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: "FFFFFF00" }, // Yellow color
-      };
-      cell.border = {
-        top: { style: "thin" },
-        left: { style: "thin" },
-        bottom: { style: "thin" },
-        right: { style: "thin" },
-      };
-    });
-    // Add each row corresponding to each value of data array
-    data.forEach((value) => {
-      let row = worksheet.addRow(value);
-      for (let i = 1; i <= 7; i++) {
-        row.getCell(i).border = {
-          left: { style: "thin" },
-          right: { style: "thin" },
-
-          bottom: { style: "thin" },
-          top: { style: "thin" },
-        };
-        if (i == 7 && +row.getCell(i).value >= 8) {
-          row.getCell(i).fill = {
-            type: "pattern",
-            pattern: "solid",
-            fgColor: { argb: "b3b3b3" },
-          };
-          console.log(1);
-        }
-      }
-    });
-    // Alignment text in cell
-    for (let i = 1; i <= 7; i++) {
-      alignColumn(i);
-    }
-    // Modify with each cell
-    widthColumn(1, 5);
-    widthColumn(2, 30);
-    widthColumn(3, 10);
-    widthColumn(4, 10);
-    widthColumn(5, 15);
-    widthColumn(6, 10);
-    widthColumn(7, 30);
-
-    // Generate Excel File with given name
-    workbook.xlsx.writeBuffer().then((data) => {
-      let blob = new Blob([data], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      });
-      fs.saveAs(blob, "12A6-grade-transcript.xlsx");
+  public addData(workSheet: any, data: any[][], style: any) {
+    data.forEach((row) => {
+      this.addRow(workSheet, row, style);
     });
   }
+  public addHeader(
+    ws: any,
+    style: any,
+    header: string[],
+    bottomHeader?: string[]
+  ) {
+    const rowHeader = this.addRow(ws, header, style);
+    let rowBottomHeader;
+    // merge empty cell horizontal
+    for (let indexContent = 0; indexContent < header.length; indexContent++) {
+      if (header[indexContent] === "" && indexContent > 0) {
+        const cellFrom = indexContent;
+        let cellTo = 0;
+        for (let index = indexContent + 1; index < header.length + 1; index++) {
+          if (header[index] !== "" || index === header.length) {
+            cellTo = index;
+            indexContent = index;
+            this.mergeRowCells(ws, rowHeader, cellFrom, cellTo);
+            break;
+          }
+        }
+      }
+    }
+    // merge empty cell vertical
+    if (bottomHeader && bottomHeader.length > 0) {
+      rowBottomHeader = this.addRow(ws, bottomHeader, style);
+      rowHeader.eachCell({ includeEmpty: true }, function (cell, colNumber) {
+        const nameOfUnderCell = `${cell._column.letter}${
+          cell._row._number + 1
+        }`;
+        const isUnderCellHasValue = ws.getCell(nameOfUnderCell).value;
+        if (!isUnderCellHasValue) {
+          ws.mergeCells(`${cell._address}:${nameOfUnderCell}`);
+        }
+      });
+    }
+    return { rowHeader, rowBottomHeader };
+  }
+  private addRow(ws, data, style) {
+    const row = ws.addRow(data);
+    this.styleRowCell(row, style);
+    return row;
+  }
+  private styleRowCell(row, style) {
+    const borderStyles = {
+      top: { style: "thin", color: { argb: "858585" } },
+      left: { style: "thin", color: { argb: "858585" } },
+      bottom: { style: "thin", color: { argb: "858585" } },
+      right: { style: "thin", color: { argb: "858585" } },
+    };
+    row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+      if (style.border) {
+        cell.border = { ...borderStyles };
+      }
+      if (style.alignment) {
+        cell.alignment = { ...style.alignment, wrapText: true };
+      } else {
+        cell.alignment = { vertical: "middle", horizontal: "left" };
+      }
+      if (style.font) {
+        cell.font = style.font;
+      }
+      if (style.fill) {
+        cell.fill = style.fill;
+      }
+    });
+    if (style.height > 0) {
+      row.height = style.height;
+    }
+  }
+  private mergeRowCells(ws, row, from, to) {
+    ws.mergeCells(`${row.getCell(from)._address}:${row.getCell(to)._address}`);
+  }
+  public async saveAsExcelFile(wb: any, fileName: string): Promise<void> {
+    const buffer = await wb.xlsx.writeBuffer();
+    const data: Blob = new Blob([buffer], {
+      type: this.EXCEL_TYPE,
+    });
+    fs.saveAs(data, fileName + new Date().getTime() + this.EXCEL_EXTENSION);
+  }
+  public generateWorkbook(): Workbook {
+    return new Workbook();
+  }
+  public addWorksheet(wb: Workbook, sheetName: string): any {
+    return wb.addWorksheet(sheetName);
+  }
+  public addRowTitle(
+    workSheet: any,
+    title: string,
+    from: number,
+    to: number,
+    style: any
+  ): any {
+    let rowSheetTitle = this.addRow(workSheet, [title], style);
+    this.mergeRowCells(workSheet, rowSheetTitle, from, to);
+  }
+  public styleWidthColumns(workSheet: any, widths: { width: number }[]) {
+    if (widths && widths.length > 0) {
+      workSheet.columns = widths;
+    }
+  }
+  private addEmptyRow(workSheet: any, numberRow: number = 1) {
+    for (let index = 0; index < numberRow; index++) {
+      workSheet.addRow([]);
+    }
+  }
+  public richText(cell: any, valueCell: any) {
+    cell.value = {
+      richText: [
+        {
+          font: {
+            size: 12,
+            color: { theme: 0 },
+            name: "Calibri",
+            family: 2,
+            scheme: "minor",
+          },
+          text: "This is ",
+        },
+        {
+          font: {
+            italic: true,
+            size: 12,
+            color: { theme: 0 },
+            name: "Calibri",
+            scheme: "minor",
+          },
+          text: "a",
+        },
+        {
+          font: {
+            size: 12,
+            color: { theme: 1 },
+            name: "Calibri",
+            family: 2,
+            scheme: "minor",
+          },
+          text: " ",
+        },
+        {
+          font: {
+            size: 12,
+            color: { argb: "FFFF6600" },
+            name: "Calibri",
+            scheme: "minor",
+          },
+          text: "colorful",
+        },
+        {
+          font: {
+            size: 12,
+            color: { theme: 1 },
+            name: "Calibri",
+            family: 2,
+            scheme: "minor",
+          },
+          text: " text ",
+        },
+        {
+          font: {
+            size: 12,
+            color: { argb: "FFCCFFCC" },
+            name: "Calibri",
+            scheme: "minor",
+          },
+          text: "with",
+        },
+        {
+          font: {
+            size: 12,
+            color: { theme: 1 },
+            name: "Calibri",
+            family: 2,
+            scheme: "minor",
+          },
+          text: " in-cell ",
+        },
+        {
+          font: {
+            bold: true,
+            size: 12,
+            color: { theme: 1 },
+            name: "Calibri",
+            family: 2,
+            scheme: "minor",
+          },
+          text: "format",
+        },
+        // {
+        //   style: {
+        //     font: { color: { argb: "ff0000" }, bold: true },
+        //     // You can set some properies in here
+        //   },
+        //   text: valueCell,
+        // },
+      ],
+    };
+  }
 }
+
+// data.forEach((d) => {
+//   const row = worksheet.addRow(d);
+//   const qty = row.getCell(5);
+//   let color = "FF99FF99";
+//   if (+qty.value < 500) {
+//     color = "FF9999";
+//   }
+
+//   qty.fill = {
+//     type: "pattern",
+//     pattern: "solid",
+//     fgColor: { argb: color },
+//   };
+// });
+
+// worksheet.getColumn(3).width = 30;
+// worksheet.getColumn(4).width = 30;
+// rowHeader.splice(7, 0, "", "");
+// // Add row title and formatting
+// const title = "Hole section summary";
+// const titleRow = worksheet.addRow([title]);
+// titleRow.font = {
+//   size: 16,
+//   bold: true,
+// };
