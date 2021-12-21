@@ -244,3 +244,29 @@ export class ExcelService {
     };
   }
 }
+
+// data.forEach((d) => {
+//   const row = worksheet.addRow(d);
+//   const qty = row.getCell(5);
+//   let color = "FF99FF99";
+//   if (+qty.value < 500) {
+//     color = "FF9999";
+//   }
+
+//   qty.fill = {
+//     type: "pattern",
+//     pattern: "solid",
+//     fgColor: { argb: color },
+//   };
+// });
+
+// worksheet.getColumn(3).width = 30;
+// worksheet.getColumn(4).width = 30;
+// rowHeader.splice(7, 0, "", "");
+// // Add row title and formatting
+// const title = "Hole section summary";
+// const titleRow = worksheet.addRow([title]);
+// titleRow.font = {
+//   size: 16,
+//   bold: true,
+// };
